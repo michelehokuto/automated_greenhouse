@@ -24,11 +24,16 @@ unsigned long tempo2 = 2000;
 unsigned long tempo3 = 4000;
 unsigned long tempo4 = 6000;
 int lampada = LOW;
-/* variables for capacitive soil moisure sensor */
+/* variables for capacitive soil moisure sensor
+ * use two variables for soil umidity because the first
+ * is refresh every eight second for command pump
+ * the second is refresh every cycle for print the output
+ * in to lcd 16x2
+ */
 int umid_terreno = 0;
+int umid_terreno_lcd = 0;
 unsigned long tempo5 = 8000;
 int pompa = LOW;
-int x = 0;
 
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
@@ -52,9 +57,9 @@ void setup() {
 
 void loop() {
   
-  umid_terreno = analogRead(A0);
+  umid_terreno_lcd = analogRead(A0);
   /* maps umid_terreno to get the value from 0 to 100 percent */
-  umid_terreno = map(umid_terreno, 282, 680, 100, 0);
+  umid_terreno_lcd = map(umid_terreno_lcd, 282, 680, 100, 0);
   /* read dht22 humidity and temperature and save in float variables */
   float umidita = dht.readHumidity();
   float temperatura = dht.readTemperature();
@@ -205,20 +210,20 @@ void loop() {
 /* FINISH SECURITY -----------------------------------------------------------------*/
 
 /* OPERATE PUMP FOR WATERING ------------------------------------------------------*/
-
-if (umid_terreno <= 50 && millisecondi >= tempo5) {
-  tempo5 = millisecondi + 8000;
-  x = x + 1;
-  if (pompa == LOW) {
-    digitalWrite(3, pompa = HIGH);
-    
+if (millisecondi >= tempo5) {
+  umid_terreno = analogRead(A0);
+  umid_terreno = map(umid_terreno, 282, 680, 100, 0);
+  tempo5 = tempo5 + 8000;
+  
+  if (umid_terreno <= 50) {
+    if (pompa == LOW) {
+      digitalWrite(3, pompa = HIGH);
+    }
+  }
+  if (umid_terreno > 50) {
+    digitalWrite(3, pompa = LOW);
   }
 }
-if (umid_terreno > 50 && x >= 2) {
-  digitalWrite(3, pompa = LOW);
-  x = 0;
-}
-
 /* FINISH PUMP ----------------------------------------------------------------------------*/
   /* print some debugging information in the serial monitor */
   Serial.print("millisecondi: ");
@@ -246,6 +251,17 @@ if (umid_terreno > 50 && x >= 2) {
   Serial.print(minuti);
   Serial.print("  ");
   Serial.print("secondi: ");
-  Serial.println(secondi);
-  
+  Serial.print(secondi);
+  Serial.print("  ");
+  Serial.print("umid_te: ");
+  Serial.print(umid_terreno);
+  Serial.print("  ");
+  Serial.print("umid_te_lcd: ");
+  Serial.print(umid_terreno_lcd);
+  Serial.print("  ");
+  Serial.print("tempo5: ");
+  Serial.print(tempo5);
+  Serial.print("  ");
+  Serial.print("pompa: ");
+  Serial.println(pompa);
 }
