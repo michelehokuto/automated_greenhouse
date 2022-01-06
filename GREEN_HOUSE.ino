@@ -58,8 +58,8 @@ void setup() {
 void loop() {
   
   umid_terreno_lcd = analogRead(A0);
-  /* maps umid_terreno to get the value from 0 to 100 percent */
-  umid_terreno_lcd = map(umid_terreno_lcd, 282, 680, 100, 0);
+  /* maps umid_terreno_lcd to get the value from 0 to 100 percent */
+  umid_terreno_lcd = map(umid_terreno_lcd, 290, 380, 100, 0);
   /* read dht22 humidity and temperature and save in float variables */
   float umidita = dht.readHumidity();
   float temperatura = dht.readTemperature();
@@ -212,7 +212,7 @@ void loop() {
 /* OPERATE PUMP FOR WATERING ------------------------------------------------------*/
 if (millisecondi >= tempo5) {
   umid_terreno = analogRead(A0);
-  umid_terreno = map(umid_terreno, 282, 680, 100, 0);
+  umid_terreno = map(umid_terreno, 290, 380, 100, 0);
   tempo5 = tempo5 + 8000;
   
   if (umid_terreno <= 50) {
